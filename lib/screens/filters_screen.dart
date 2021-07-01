@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:meals_flutter/main_drawer.dart';
+import 'package:meals_flutter/screens/categories_screen.dart';
+import 'package:meals_flutter/screens/category_meals_screen.dart';
 
 class FiltersScreen extends StatefulWidget {
   final Function setFilters;
+  final Map<String, bool> currentFilters;
 
-  const FiltersScreen(
-    this.setFilters,
-  );
+  const FiltersScreen(this.setFilters, this.currentFilters);
 
   static const routeName = '/filters-screen';
 
@@ -19,6 +20,16 @@ class _FiltersScreenState extends State<FiltersScreen> {
   var _isLactoseFree = false;
   var _isVegan = false;
   var _isVegetarian = false;
+
+  @override
+  initState() {
+    _isGlutenFree = widget.currentFilters['gluten'] as bool;
+    _isLactoseFree = widget.currentFilters['lactose'] as bool;
+    _isVegan = widget.currentFilters['vegan'] as bool;
+    _isVegetarian = widget.currentFilters['vegetarian'] as bool;
+
+    super.initState();
+  }
 
   Widget _buildSwitchListTile(String title, String subTitle, bool currentValue,
       Function(bool) updateValue) {
@@ -35,20 +46,6 @@ class _FiltersScreenState extends State<FiltersScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Filters'),
-        actions: [
-          IconButton(
-              onPressed: () {
-                final Map<String ,bool> selectedFilters= {
-                    'gluten': _isGlutenFree,
-                    'lactose': _isLactoseFree,
-                    'vegan': _isVegan,
-                    'vegetarian': _isVegetarian,
-                  };
-
-                widget.setFilters(selectedFilters);
-              },
-              icon: Icon(Icons.save))
-        ],
       ),
       drawer: MainDrawer(),
       body: Column(
@@ -86,7 +83,25 @@ class _FiltersScreenState extends State<FiltersScreen> {
             setState(() {
               _isVegetarian = newValue;
             });
-          })
+          }),
+          ElevatedButton(
+              onPressed: () {
+                final Map<String, bool> selectedFilters = {
+                  'gluten': _isGlutenFree,
+                  'lactose': _isLactoseFree,
+                  'vegan': _isVegan,
+                  'vegetarian': _isVegetarian,
+                };
+
+                widget.setFilters(selectedFilters);
+              },
+              child: Text('Save'),),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed('/');
+            },
+            child: Text('Updated Meals'),
+          )
         ],
       ),
     );

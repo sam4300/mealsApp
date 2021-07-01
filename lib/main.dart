@@ -21,7 +21,6 @@ class MealApp extends StatefulWidget {
 class _MealAppState extends State<MealApp> {
 
 
-
   Map<String, bool> _filters = {
     'gluten': false,
     'lactose': false,
@@ -29,26 +28,46 @@ class _MealAppState extends State<MealApp> {
     'vegetarian': false,
   };
   List<Meal> _availableMeals = DUMMY_MEALS;
+  List<Meal> _favoriteMeals = [];
 
-  void _setFilters(Map<String, bool> filterData){
-setState(() {
-_filters = filterData;
-_availableMeals = DUMMY_MEALS.where((meal){
-  if(_filters['gluten'] ==true && !meal.isGlutenFree ){
-return false;
+
+  void _toggleFavorite(String mealId) {
+    final existingIndex = _favoriteMeals.indexWhere((meal) =>
+    meal.id == mealId);
+    if (existingIndex >= 0) {
+      setState(() {
+        _favoriteMeals.removeAt(existingIndex);
+      });
+    }
+    else {
+      setState(() {
+        _favoriteMeals.add(DUMMY_MEALS.firstWhere((meal) => meal.id == mealId ),);
+      });
+    }
   }
-  if(_filters['lactose'] ==true && !meal.isLactoseFree ){
-    return false;
+  bool _isMealFavorite(String id){
+    return _favoriteMeals.any((meal)=> meal.id == id);
   }
-  if(_filters['vegan'] ==true && !meal.isVegan ){
-    return false;
-  }
-  if(_filters['vegetarian'] ==true && !meal.isVegetarian ){
-    return false;
-  }
-  return true ;
-}).toList();
-});
+
+  void _setFilters(Map<String, bool> filterData) {
+    setState(() {
+      _filters = filterData;
+      _availableMeals = DUMMY_MEALS.where((meal) {
+        if (_filters['gluten'] == true && !meal.isGlutenFree) {
+          return false;
+        }
+        if (_filters['lactose'] == true && !meal.isLactoseFree) {
+          return false;
+        }
+        if (_filters['vegan'] == true && !meal.isVegan) {
+          return false;
+        }
+        if (_filters['vegetarian'] == true && !meal.isVegetarian) {
+          return false;
+        }
+        return true;
+      }).toList();
+    });
   }
 
   @override
@@ -60,17 +79,21 @@ return false;
           primarySwatch: Colors.pink,
           accentColor: Colors.amber,
           canvasColor: Color.fromRGBO(255, 255, 235, 1),
-          textTheme: ThemeData.light().textTheme.copyWith(
-                  headline6: TextStyle(
+          textTheme: ThemeData
+              .light()
+              .textTheme
+              .copyWith(
+              headline6: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
                 fontStyle: FontStyle.italic,
               ))),
       routes: {
-        '/': (ctx) => TabsScreen(),
-        CategoryMealsScreen.routeName: (ctx) => CategoryMealsScreen(_availableMeals),
-        MealsDetails.routeName: (ctx) => MealsDetails(),
-        FiltersScreen.routeName: (ctx) => FiltersScreen(_setFilters),
+        '/': (ctx) => TabsScreen(_favoriteMeals),
+        CategoryMealsScreen.routeName: (ctx) =>
+            CategoryMealsScreen(_availableMeals),
+        MealsDetails.routeName: (ctx) => MealsDetails(_toggleFavorite, _isMealFavorite),
+        FiltersScreen.routeName: (ctx) => FiltersScreen(_setFilters, _filters)
       },
     );
   }

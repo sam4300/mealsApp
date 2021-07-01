@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:meals_flutter/dummy_data.dart';
 
 class MealsDetails extends StatefulWidget {
-  const MealsDetails({Key? key}) : super(key: key);
+  final Function toggleFavorite;
+  final Function isMealFavorite;
+
+  const MealsDetails(this.toggleFavorite, this.isMealFavorite);
 
   static const routeName = '/meals-details-screen';
 
@@ -58,6 +61,12 @@ class _MealsDetailsState extends State<MealsDetails> {
                 fit: BoxFit.cover,
               ),
             ),
+            FloatingActionButton(
+              onPressed: () {
+                widget.toggleFavorite(id);
+              },
+              child: widget.isMealFavorite(id) ? Icon(Icons.star) : Icon(Icons.star_border),
+            ),
             builderIngredientsTitle(context, 'Ingredients'),
             builderContainer(
               ListView.builder(
@@ -87,11 +96,6 @@ class _MealsDetailsState extends State<MealsDetails> {
                 itemCount: selectedMeals.steps.length,
               ),
             ),
-            FloatingActionButton(onPressed: (){
-              Navigator.of(context).pop(id);
-            },
-            child: Icon(Icons.delete),
-            )
           ],
         ),
       ),

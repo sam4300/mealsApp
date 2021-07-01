@@ -53,7 +53,6 @@ displayedMeals!.removeWhere((meal) => meal.id == id);
                 title: displayedMeals![index].title,
                 duration: displayedMeals![index].duration,
                 imageUrl: displayedMeals![index].imageUrl,
-                removeItem: removeItem,
             );
           },
           itemCount: displayedMeals!.length),
