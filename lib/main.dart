@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import '/screens/categories_screen.dart';
+import 'package:meals_flutter/dummy_data.dart';
+import 'package:meals_flutter/models/meal.dart';
+
+import 'package:meals_flutter/screens/filters_screen.dart';
+import 'package:meals_flutter/screens/meal_details_screen.dart';
+import 'package:meals_flutter/screens/tabs_screen.dart';
 import '/screens/category_meals_screen.dart';
 
 void main() {
@@ -14,6 +19,38 @@ class MealApp extends StatefulWidget {
 }
 
 class _MealAppState extends State<MealApp> {
+
+
+
+  Map<String, bool> _filters = {
+    'gluten': false,
+    'lactose': false,
+    'vegan': false,
+    'vegetarian': false,
+  };
+  List<Meal> _availableMeals = DUMMY_MEALS;
+
+  void _setFilters(Map<String, bool> filterData){
+setState(() {
+_filters = filterData;
+_availableMeals = DUMMY_MEALS.where((meal){
+  if(_filters['gluten'] ==true && !meal.isGlutenFree ){
+return false;
+  }
+  if(_filters['lactose'] ==true && !meal.isLactoseFree ){
+    return false;
+  }
+  if(_filters['vegan'] ==true && !meal.isVegan ){
+    return false;
+  }
+  if(_filters['vegetarian'] ==true && !meal.isVegetarian ){
+    return false;
+  }
+  return true ;
+}).toList();
+});
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,23 +60,18 @@ class _MealAppState extends State<MealApp> {
           primarySwatch: Colors.pink,
           accentColor: Colors.amber,
           canvasColor: Color.fromRGBO(255, 255, 235, 1),
-          textTheme: ThemeData
-              .light()
-              .textTheme
-              .copyWith(
-              headline6: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  fontStyle: FontStyle.italic,
-              )
-          )
-
-      ),
+          textTheme: ThemeData.light().textTheme.copyWith(
+                  headline6: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                fontStyle: FontStyle.italic,
+              ))),
       routes: {
-        '/': (ctx) => CategoriesScreen(),
-        CategoryMealsScreen.routeName : (ctx) => CategoryMealsScreen()
-
-    },
+        '/': (ctx) => TabsScreen(),
+        CategoryMealsScreen.routeName: (ctx) => CategoryMealsScreen(_availableMeals),
+        MealsDetails.routeName: (ctx) => MealsDetails(),
+        FiltersScreen.routeName: (ctx) => FiltersScreen(_setFilters),
+      },
     );
   }
 }
